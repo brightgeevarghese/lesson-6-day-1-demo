@@ -3,10 +3,12 @@ package com.bright.userprofilems.service.impl;
 import com.bright.userprofilems.dto.request.UserRequestDto;
 import com.bright.userprofilems.dto.response.UserResponseDto;
 import com.bright.userprofilems.exception.user.DuplicateUserException;
+import com.bright.userprofilems.exception.user.UserNotFoundException;
 import com.bright.userprofilems.mapper.UserMapper;
 import com.bright.userprofilems.model.User;
 import com.bright.userprofilems.repository.UserRepository;
 import com.bright.userprofilems.service.UserService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -36,12 +38,29 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDto updateUser(String username, UserRequestDto userRequestDto) {
-        return null;
+        Optional<User> optionalUser = userRepository.findByUsername(username);
+        if (optionalUser.isPresent()) {
+            //do update
+            User existingUser = optionalUser.get();
+            User mappedUser = userMapper.userRequestDtoToUser(userRequestDto);
+            mappedUser.setId(existingUser.getId());
+            if (mappedUser.getProfile() != null) {
+                mappedUser.getProfile().setId(existingUser.getProfile().getId());
+            }
+            User updatedUser = userRepository.save(mappedUser);
+            return userMapper.userToUserResponseDto(updatedUser);
+        }
+        throw new UserNotFoundException(username + " is not found");
     }
 
     @Override
+    @Transactional
     public void deleteUserByUsername(String username) {
-
+//        userRepository.findByUsername(username).ifPresent(user -> userRepository.delete(user));
+        Optional<User> optionalUser = userRepository.findByUsername(username);
+        if (optionalUser.isPresent()) {
+            userRepository.deleteByUsername(username);
+        }
     }
 
     @Override
@@ -51,6 +70,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserResponseDto> findAllUsers() {
-        return List.of();
+        List<User> users = userRepository.findAll();
+        return userMapper.userToUserResponseDto(users);
     }
 }

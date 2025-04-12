@@ -7,10 +7,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -25,4 +24,18 @@ public class UserController {
         UserResponseDto userResponseDto = userService.createUser(userRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponseDto);//201
     }
+
+    @GetMapping
+    public ResponseEntity<List<UserResponseDto>> getAllUsers() {
+        List<UserResponseDto> userResponseDtos = userService.findAllUsers();
+        return ResponseEntity.status(HttpStatus.OK).body(userResponseDtos);
+    }
+
+    @PutMapping("/{username}")
+    public ResponseEntity<UserResponseDto> updateUser(@PathVariable String username, @Valid @RequestBody UserRequestDto userRequestDto) {
+        UserResponseDto userResponseDto = userService.updateUser(username, userRequestDto);
+        return ResponseEntity.status(HttpStatus.OK).body(userResponseDto);
+    }
+
+    @DeleteMapping
 }

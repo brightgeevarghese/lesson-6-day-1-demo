@@ -13,6 +13,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "user_id")
     private Long id;
+    @Column(unique = true, updatable = false)
     private String username;
     private String password;
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
