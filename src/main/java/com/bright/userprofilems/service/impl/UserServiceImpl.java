@@ -24,7 +24,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDto createUser(UserRequestDto userRequestDto) {
-        //Check whether user is existing or not
+        //Check whether a user is existing or not
         Optional<User> optionalUser = userRepository.findByUsername(userRequestDto.username());
         if (optionalUser.isPresent()) {
             throw new DuplicateUserException("Username already exists");
@@ -60,12 +60,19 @@ public class UserServiceImpl implements UserService {
         Optional<User> optionalUser = userRepository.findByUsername(username);
         if (optionalUser.isPresent()) {
             userRepository.deleteByUsername(username);
+        } else {
+            throw new UserNotFoundException(username + " is not found");
         }
     }
 
     @Override
     public UserResponseDto findUserByUsername(String username) {
-        return null;
+        Optional<User> optionalUser = userRepository.findByUsername(username);
+        if (optionalUser.isPresent()) {
+            return userMapper.userToUserResponseDto(optionalUser.get());
+        } else {
+            throw new UserNotFoundException(username + " is not found");
+        }
     }
 
     @Override

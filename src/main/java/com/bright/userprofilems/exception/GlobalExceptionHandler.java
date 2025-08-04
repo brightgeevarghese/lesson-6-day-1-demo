@@ -1,6 +1,7 @@
 package com.bright.userprofilems.exception;
 
 import com.bright.userprofilems.exception.user.DuplicateUserException;
+import com.bright.userprofilems.exception.user.UserNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -51,5 +52,16 @@ public class GlobalExceptionHandler {
                 Instant.now()
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ApiError> handleUserNotFoundException(UserNotFoundException e, HttpServletRequest request) {
+        ApiError apiError = new ApiError(
+                e.getMessage(),
+                request.getRequestURI(),
+                HttpStatus.NOT_FOUND.value(),
+                Instant.now()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);//404
     }
 }
